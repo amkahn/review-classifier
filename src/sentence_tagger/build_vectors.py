@@ -2,7 +2,7 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: May 28, 2015
+Last Modified: May 29, 2015
 
 This script takes as input a path to a text file of labeled sentences in the following
 format:
@@ -11,8 +11,8 @@ LABEL1 This is an example sentence.
 LABEL2 This is another example sentence.
 etc.
 
-It then prints to standard out feature vectors representing the sentences (one per line;
-same order) in MALLET SVM lite format.
+It then prints feature vectors representing the sentences (one per line; same order) in
+MALLET SVM lite format to text files in ../../data/vec (one for each label).
 
 '''
 
@@ -41,6 +41,15 @@ def main():
             labels.append(label)
             sentences.append(sentence)
     sentence_f.close()
+
+    # Store the vectors that are created below in a dictionary of lists
+    # Keys are labels; values are lists of vectors with that label
+#     vector_d = defaultdict(lambda:[])
+    
+    # Keep track of which files you've opened in a dictionary so you don't reopen them,
+    # and can later close them
+    # Keys are labels, values are corresponding open file objects
+    open_files = {}
     
     # Iterate through the sentences
     for i in range(len(sentences)):
@@ -61,11 +70,33 @@ def main():
         features.extend(extract_skipgrams(s))
         features.extend(extract_pos_ngrams(s))
         
-        # Print the vector to standard out
-        print labels[i],
-        for (f,v) in features:
-            print f+':'+str(v),
-        print
+        # Old code to print all vectors together to standard out
+#         print labels[i],
+#         for (f,v) in features:
+#             print f+':'+str(v),
+#         print
 
+        # Convert the features to a string in MALLET SVM lite format
+        feature_str = ''
+        for (f,v) in features:
+            feature_str += ' '+f+':'+str(v)
+
+        # Store the feature string in the dictionary under its label
+#         vector_d[labels[i]].append(feature_str)
+        
+        # Print each list of vectors to a file named after their label
+        # FIXME: Directory and files must already exist
+        if open_files.get(labels[i]):
+            LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
+            open_files[labels[i]].write(labels[i]+feature_str+'\n')
+        else:
+            open_files[labels[i]] = open('../../data/vec/%s.txt' % labels[i], 'w')
+            LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
+            open_files[labels[i]].write(labels[i]+feature_str+'\n')
+    
+    # Close all the open files
+    for f in open_files.values():
+        f.close()
+        
 if __name__ == '__main__':
     main()
