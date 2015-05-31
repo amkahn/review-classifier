@@ -41,10 +41,6 @@ def main():
             labels.append(label)
             sentences.append(sentence)
     sentence_f.close()
-
-    # Store the vectors that are created below in a dictionary of lists
-    # Keys are labels; values are lists of vectors with that label
-#     vector_d = defaultdict(lambda:[])
     
     # Keep track of which files you've opened in a dictionary so you don't reopen them,
     # and can later close them
@@ -80,9 +76,6 @@ def main():
         feature_str = ''
         for (f,v) in features:
             feature_str += ' '+f+':'+str(v)
-
-        # Store the feature string in the dictionary under its label
-#         vector_d[labels[i]].append(feature_str)
         
         # Print each list of vectors to a file named after their label
         # FIXME: Directory and files must already exist
