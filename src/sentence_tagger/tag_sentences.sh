@@ -15,7 +15,7 @@ for((i=1;i<N+1;++i)); do
 done
 
 # Build the feature vectors from the input sentences
-# ./build_vectors.py ../../data/sentences.txt
+./build_vectors.py ../../data/sentences.txt
 
 # Get the paths to the files containing the vectors
 FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/vec -maxdepth 1 -type f)
@@ -74,6 +74,7 @@ for FILE in $FILES; do
     done
 
 done
+
 
 # Run MALLET classification experiments
 # Do this for each of N folds

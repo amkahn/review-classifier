@@ -60,9 +60,14 @@ def extract_bigrams(text):
     @return: feature_list = a list of feature:value strings in MALLET SVM lite format
     '''
 #     LOG.info("Extracting bigram features")
+
     num_bigrams = 0
     bigram_counts = defaultdict(lambda: 0)
     tokens = text.split()
+    
+    if len(tokens) < 2:
+        LOG.debug("Sentence has fewer than 2 tokens: %s" % text)
+        return []
     
     for i in range(1, len(tokens)):
         num_bigrams += 1
@@ -93,6 +98,10 @@ def extract_trigrams(text):
     num_trigrams = 0
     trigram_counts = defaultdict(lambda: 0)
     tokens = text.split()
+
+    if len(tokens) < 3:
+        LOG.debug("Sentence has fewer than 3 tokens: %s" % text)
+        return []
     
     for i in range(2, len(tokens)):
         num_trigrams += 1
@@ -123,6 +132,10 @@ def extract_skipgrams(text):
     num_trigrams = 0
     skipgram_counts = defaultdict(lambda: 0)
     tokens = text.split()
+
+    if len(tokens) < 3:
+        LOG.debug("Sentence has fewer than 3 tokens: %s" % text)
+        return []
     
     for i in range(2, len(tokens)):
         num_trigrams += 1
@@ -152,6 +165,8 @@ def extract_pos_ngrams(text):
     @return: feature_list = a list of feature:value strings in MALLET SVM lite format
     '''
 #     LOG.info("Extracting POS-tag n-gram features")
+    num_unigrams = 0
+    num_bigrams = 0
     num_trigrams = 0
     
     unigram_counts = defaultdict(lambda: 0)
@@ -163,32 +178,38 @@ def extract_pos_ngrams(text):
     tagged_tokens = pos_tag(tokens)
     LOG.debug("Here are the tagged tokens: %s" % tagged_tokens)
 
+    num_unigrams += 1
     unigram = tagged_tokens[0][1]
     unigram_counts[unigram] += 1
 
-    unigram = tagged_tokens[1][1]
-    unigram_counts[unigram] += 1
-    bigram = tagged_tokens[0][1]+'~'+tagged_tokens[1][1]
-    bigram_counts[bigram] += 1
-    
-    for i in range(2, len(tagged_tokens)):
-        num_trigrams += 1
-        
-        unigram = tagged_tokens[i][1]
+    if len(tagged_tokens) > 1:
+        num_unigrams += 1
+        unigram = tagged_tokens[1][1]
         unigram_counts[unigram] += 1
         
-        bigram = tagged_tokens[i-1][1]+'~'+tagged_tokens[i][1]
+        bigram = tagged_tokens[0][1]+'~'+tagged_tokens[1][1]
         bigram_counts[bigram] += 1
+        
+        if len(tagged_tokens) > 2:
+            for i in range(2, len(tagged_tokens)):
+                num_unigrams += 1
+        
+                unigram = tagged_tokens[i][1]
+                unigram_counts[unigram] += 1
+        
+                bigram = tagged_tokens[i-1][1]+'~'+tagged_tokens[i][1]
+                bigram_counts[bigram] += 1
 
-        trigram = tagged_tokens[i-2][1]+'~'+tagged_tokens[i-1][1]+'~'+tagged_tokens[i][1]
-        trigram_counts[trigram] += 1
+                trigram = tagged_tokens[i-2][1]+'~'+tagged_tokens[i-1][1]+'~'+tagged_tokens[i][1]
+                trigram_counts[trigram] += 1
 
-#         skipgram = tokens[i-2][1]+tokens[i][1]
-        skipgram = tagged_tokens[i-2][1]+'~*~'+tagged_tokens[i][1]
-        skipgram_counts[skipgram] += 1
+        #         skipgram = tokens[i-2][1]+tokens[i][1]
+                skipgram = tagged_tokens[i-2][1]+'~*~'+tagged_tokens[i][1]
+                skipgram_counts[skipgram] += 1
     
-    num_bigrams = num_trigrams + 1
-    num_unigrams = num_trigrams + 2
+            num_trigrams = num_unigrams - 2
+                
+        num_bigrams = num_unigrams - 1
     
     # Create the feature list
     feature_list = []

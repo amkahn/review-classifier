@@ -78,13 +78,12 @@ def main():
             feature_str += ' '+f+':'+str(v)
         
         # Print each list of vectors to a file named after their label
-        # FIXME: Directory and files must already exist
         if open_files.get(labels[i]):
-            LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
+#             LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
             open_files[labels[i]].write(labels[i]+feature_str+'\n')
         else:
             open_files[labels[i]] = open('../../data/vec/%s.txt' % labels[i], 'w')
-            LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
+#             LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
             open_files[labels[i]].write(labels[i]+feature_str+'\n')
     
     # Close all the open files
