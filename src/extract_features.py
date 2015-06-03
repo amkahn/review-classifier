@@ -2,7 +2,7 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: June 1, 2015
+Last Modified: June 2, 2015
 
 This module contains various functions for extracting features from text strings.
 

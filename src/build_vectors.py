@@ -2,7 +2,7 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: May 29, 2015
+Last Modified: June 2, 2015
 
 This script takes as input a path to a text file of labeled sentences in the following
 format:
@@ -64,7 +64,7 @@ def main():
         features.extend(extract_unigrams(s))
         features.extend(extract_bigrams(s))
         features.extend(extract_trigrams(s))
-        features.extend(extract_skipgrams(s))
+#         features.extend(extract_skipgrams(s))
         features.extend(extract_pos_ngrams(s))
         
         # Old code to print all vectors together to standard out

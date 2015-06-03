@@ -24,88 +24,104 @@ FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/vec -maxdepth 1 -
 NUM=$(echo "$FILES" | wc -l)
 echo "Number of classes:" $NUM
 
-# Iterate through the class files, splitting data for each class randomly into N folds
-for FILE in $FILES; do
-    # Store the vectors of this class in an array
-    readarray a < $FILE
-    
-    # Count the vectors in this class and determine the number of vectors per fold
-    NUM=${#a[*]}
-    echo $NUM "vectors in" $FILE
-    K=$(($NUM / N))
-    echo "Each fold for the first class will have this many vectors:" $K
 
-    # Count the vectors in this class and determine the number of vectors per fold
+# BEGIN NEW MALLET CODE (USES MALLET'S N-FOLD CROSS-VALIDATION)
+> ../out/"$TAG"_vectors.txt
+for FILE in $FILES; do
+    cat $FILE >> ../out/"$TAG"_vectors.txt
+done
+
+mallet import-svmlight --input ../out/"$TAG"_vectors.txt --output ../out/"$TAG"_vectors
+mallet train-classifier --input ../out/"$TAG"_vectors --cross-validation $N --trainer MaxEnt --output-classifier ../out/"$TAG"_maxent
+for((i=0;i<N;++i)); do
+    classifier2info --classifier ../out/"$TAG"_maxent.trial"$i" > ../out/"$TAG"_maxent.trial"$i".txt
+done
+# END NEW MALLET CODE
+
+
+# OLD MALLET CODE TO SPLIT DATA MANUALLY INTO N FOLDS AND PERFORM CROSS-VALIDATION
+# Iterate through the class files, splitting data for each class randomly into N folds
+# for FILE in $FILES; do
+#     # Store the vectors of this class in an array
+#     readarray a < $FILE
+#     
+#     # Count the vectors in this class and determine the number of vectors per fold
+#     NUM=${#a[*]}
+#     echo $NUM "vectors in" $FILE
+#     K=$(($NUM / N))
+#     echo "Each fold for the first class will have this many vectors:" $K
+# 
+#     # Count the vectors in this class and determine the number of vectors per fold
 #     NUM=$(cat "$FILE" | wc -l)
 #     echo $NUM "vectors in" $FILE
 #     K=$(($NUM / N))
 #     echo "Each fold for the first class will have this many vectors:" $K
-
-    # Get 1/Nth of the vectors from each class at random
-    # Do this N-1 times
-    for((i=1;i<N && ${#a[@]};++i)); do
-        echo "Writing vectors for fold" $i
-
-        # Create an array to hold N randomly selected vectors
-        randf=()
-    
-        # Do this K times
-        for((k=0;k<K && ${#a[@]};++k)); do
-            # Pick random vector
-            ((j=RANDOM%${#a[@]}))
-            # Add to the array of random vectors
-            randf+=( "${a[j]}" )
-            # Remove from the array of all vectors
-            a=( "${a[@]:0:j}" "${a[@]:j+1}" )
-        done
-
-        # Append random vectors to txt file for this fold
-        for f in "${randf[@]}"; do
+# 
+#     # Get 1/Nth of the vectors from each class at random
+#     # Do this N-1 times
+#     for((i=1;i<N && ${#a[@]};++i)); do
+#         echo "Writing vectors for fold" $i
+# 
+#         # Create an array to hold N randomly selected vectors
+#         randf=()
+#     
+#         # Do this K times
+#         for((k=0;k<K && ${#a[@]};++k)); do
+#             # Pick random vector
+#             ((j=RANDOM%${#a[@]}))
+#             # Add to the array of random vectors
+#             randf+=( "${a[j]}" )
+#             # Remove from the array of all vectors
+#             a=( "${a[@]:0:j}" "${a[@]:j+1}" )
+#         done
+# 
+#         # Append random vectors to txt file for this fold
+#         for f in "${randf[@]}"; do
 #             echo "Writing to file:" $f
-            echo $f >> ../out/"$TAG"_$i.txt
-        done
-    done    
-
-    # Copy remaining vectors to txt file for this fold
-    echo "Writing vectors for fold" $i
-    for f in "${a[@]}"; do
+#             echo $f >> ../out/"$TAG"_$i.txt
+#         done
+#     done    
+# 
+#     # Copy remaining vectors to txt file for this fold
+#     echo "Writing vectors for fold" $i
+#     for f in "${a[@]}"; do
 #         echo "Writing to file:" $f
-        echo $f >> ../out/"$TAG"_$N.txt
-    done
-
-done
-
-
+#         echo $f >> ../out/"$TAG"_$N.txt
+#     done
+# 
+# done
+# 
+# 
 # Run MALLET classification experiments
 # Do this for each of N folds
-for((f=1;f<N+1;++f)); do
-    echo "Running experiment; testing on fold" $f
-
-    # Clear the appropriate train and test txt files
-    >../out/"$TAG"_"$f"_train.txt
-    >../out/"$TAG"_"$f"_test.txt
-    
-    # Write training data to train txt file
-    for((i=1;i<f;++i)); do
-        echo "Writing to file training fold:" $i
-        cat ../out/"$TAG"_$i.txt >> ../out/"$TAG"_"$f"_train.txt
-    done
-
-    for((i=f+1;i<N+1;++i)); do
-        echo "Writing to file training fold:" $i
-        cat ../out/"$TAG"_$i.txt >> ../out/"$TAG"_"$f"_train.txt
-    done
-
-    # Write test data to test txt file
-    echo "Writing to file testing fold:" $f
-    cat ../out/"$TAG"_$f.txt >> ../out/"$TAG"_"$f"_test.txt
-
-    # Convert the vector txt files to svm light files
-    mallet import-svmlight --input ../out/"$TAG"_"$f"_train.txt --output ../out/"$TAG"_"$f"_train.vectors
-    mallet import-svmlight --input ../out/"$TAG"_"$f"_test.txt --output ../out/"$TAG"_"$f"_test.vectors --use-pipe-from ../out/"$TAG"_"$f"_train.vectors
-
-    # Run MALLET and write classifier to txt file
-    vectors2classify --training-file ../out/"$TAG"_"$f"_train.vectors --testing-file ../out/"$TAG"_"$f"_test.vectors --trainer "MaxEnt" --output-classifier ../out/"$TAG"_"$f"_maxent
-    classifier2info --classifier ../out/"$TAG"_"$f"_maxent > ../out/"$TAG"_"$f"_maxent.txt
-
-done
+# for((f=1;f<N+1;++f)); do
+#     echo "Running experiment; testing on fold" $f
+# 
+#     # Clear the appropriate train and test txt files
+#     >../out/"$TAG"_"$f"_train.txt
+#     >../out/"$TAG"_"$f"_test.txt
+#     
+#     # Write training data to train txt file
+#     for((i=1;i<f;++i)); do
+#         echo "Writing to file training fold:" $i
+#         cat ../out/"$TAG"_$i.txt >> ../out/"$TAG"_"$f"_train.txt
+#     done
+# 
+#     for((i=f+1;i<N+1;++i)); do
+#         echo "Writing to file training fold:" $i
+#         cat ../out/"$TAG"_$i.txt >> ../out/"$TAG"_"$f"_train.txt
+#     done
+# 
+#     # Write test data to test txt file
+#     echo "Writing to file testing fold:" $f
+#     cat ../out/"$TAG"_$f.txt >> ../out/"$TAG"_"$f"_test.txt
+# 
+#     # Convert the vector txt files to svm light files
+#     mallet import-svmlight --input ../out/"$TAG"_"$f"_train.txt --output ../out/"$TAG"_"$f"_train.vectors
+#     mallet import-svmlight --input ../out/"$TAG"_"$f"_test.txt --output ../out/"$TAG"_"$f"_test.vectors --use-pipe-from ../out/"$TAG"_"$f"_train.vectors
+# 
+#     # Run MALLET and write classifier to txt file
+#     vectors2classify --training-file ../out/"$TAG"_"$f"_train.vectors --testing-file ../out/"$TAG"_"$f"_test.vectors --trainer "MaxEnt" --output-classifier ../out/"$TAG"_"$f"_maxent
+#     classifier2info --classifier ../out/"$TAG"_"$f"_maxent > ../out/"$TAG"_"$f"_maxent.txt
+# 
+# done
