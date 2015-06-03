@@ -32,7 +32,7 @@ for FILE in $FILES; do
 done
 
 mallet import-svmlight --input ../out/"$TAG"_vectors.txt --output ../out/"$TAG"_vectors
-mallet train-classifier --input ../out/"$TAG"_vectors --cross-validation $N --trainer MaxEnt --output-classifier ../out/"$TAG"_maxent
+mallet train-classifier --input ../out/"$TAG"_vectors --cross-validation $N --trainer MaxEnt --report train:accuracy test:accuracy test:confusion test:raw --output-classifier ../out/"$TAG"_maxent
 for((i=0;i<N;++i)); do
     classifier2info --classifier ../out/"$TAG"_maxent.trial"$i" > ../out/"$TAG"_maxent.trial"$i".txt
 done
