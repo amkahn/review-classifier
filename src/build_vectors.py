@@ -12,7 +12,7 @@ LABEL2 This is another example sentence.
 etc.
 
 It then prints feature vectors representing the sentences (one per line; same order) in
-MALLET SVM lite format to text files in ../../data/vec (one for each label).
+MALLET SVM lite format to text files in ../data/vec (one for each label).
 
 '''
 
@@ -49,6 +49,7 @@ def main():
     
     # Iterate through the sentences
     for i in range(len(sentences)):
+        LOG.debug("Building vector for sentence: %s" % sentences[i])
     
         # Preprocess the text
         # FIXME: Store capitals, exclamation points, emoticons
@@ -82,7 +83,7 @@ def main():
 #             LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
             open_files[labels[i]].write(labels[i]+feature_str+'\n')
         else:
-            open_files[labels[i]] = open('../../data/vec/%s.txt' % labels[i], 'w')
+            open_files[labels[i]] = open('../data/vec/%s.txt' % labels[i], 'w')
 #             LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
             open_files[labels[i]].write(labels[i]+feature_str+'\n')
     

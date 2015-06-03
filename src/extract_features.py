@@ -2,11 +2,9 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: May 28, 2015
+Last Modified: June 1, 2015
 
 This module contains various functions for extracting features from text strings.
-
-FIXME: Add START and STOP tokens
 
 '''
 
@@ -15,7 +13,7 @@ from collections import defaultdict
 from nltk import sent_tokenize, word_tokenize, pos_tag
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.INFO)
 
 
 def extract_unigrams(text, min_val=0):
@@ -29,12 +27,13 @@ def extract_unigrams(text, min_val=0):
     @return: feature_list = a list of (feature, value) tuples
     '''
 #     LOG.info("Extracting unigram features")
-    num_unigrams = 0
     unigram_counts = defaultdict(lambda: 0)
     tokens = text.split()
     
+    num_unigrams = len(tokens)
+    LOG.debug("There are %s unigrams" % num_unigrams)
+    
     for token in tokens:
-        num_unigrams += 1
         unigram_counts[token] += 1
     
     # Create the feature list
@@ -60,13 +59,21 @@ def extract_bigrams(text):
     @return: feature_list = a list of feature:value strings in MALLET SVM lite format
     '''
 #     LOG.info("Extracting bigram features")
-    num_bigrams = 0
     bigram_counts = defaultdict(lambda: 0)
-    tokens = text.split()
+    tokens = ['START']
+    tokens += text.split()
+    tokens.append('STOP')
+
+    num_bigrams = max(len(tokens)-1, 0)
+    LOG.debug("There are %s bigrams" % num_bigrams)
+    
+    if len(tokens) < 2:
+        LOG.debug("Sentence has fewer than 2 tokens: %s" % text)
+        return []
     
     for i in range(1, len(tokens)):
-        num_bigrams += 1
         bigram = tokens[i-1]+'~'+tokens[i]
+        LOG.debug("Adding %s to features" % bigram)
         bigram_counts[bigram] += 1
     
     # Create the feature list
@@ -90,13 +97,21 @@ def extract_trigrams(text):
     @return: feature_list = a list of feature:value strings in MALLET SVM lite format
     '''
 #     LOG.info("Extracting trigram features")
-    num_trigrams = 0
     trigram_counts = defaultdict(lambda: 0)
-    tokens = text.split()
+    tokens = ['START']
+    tokens += text.split()
+    tokens.append('STOP')
+
+    num_trigrams = max(len(tokens)-2, 0)
+    LOG.debug("There are %s trigrams" % num_trigrams)
+
+    if len(tokens) < 3:
+        LOG.debug("Sentence has fewer than 3 tokens: %s" % text)
+        return []
     
     for i in range(2, len(tokens)):
-        num_trigrams += 1
         trigram = tokens[i-2]+'~'+tokens[i-1]+'~'+tokens[i]
+        LOG.debug("Adding %s to features" % trigram)
         trigram_counts[trigram] += 1
     
     # Create the feature list
@@ -120,14 +135,22 @@ def extract_skipgrams(text):
     @return: feature_list = a list of feature:value strings in MALLET SVM lite format
     '''
 #     LOG.info("Extracting trigram features")
-    num_trigrams = 0
     skipgram_counts = defaultdict(lambda: 0)
-    tokens = text.split()
+    tokens = ['START']
+    tokens += text.split()
+    tokens.append('STOP')
+
+    num_trigrams = max(len(tokens)-2, 0)
+    LOG.debug("There are %s trigrams" % num_trigrams)
+
+    if len(tokens) < 3:
+        LOG.debug("Sentence has fewer than 3 tokens: %s" % text)
+        return []
     
     for i in range(2, len(tokens)):
-        num_trigrams += 1
 #         skipgram = tokens[i-2]+tokens[i]
         skipgram = tokens[i-2]+'~*~'+tokens[i]
+        LOG.debug("Adding %s to features" % skipgram)
         skipgram_counts[skipgram] += 1
     
     # Create the feature list
@@ -152,7 +175,6 @@ def extract_pos_ngrams(text):
     @return: feature_list = a list of feature:value strings in MALLET SVM lite format
     '''
 #     LOG.info("Extracting POS-tag n-gram features")
-    num_trigrams = 0
     
     unigram_counts = defaultdict(lambda: 0)
     bigram_counts = defaultdict(lambda: 0)
@@ -160,35 +182,65 @@ def extract_pos_ngrams(text):
     skipgram_counts = defaultdict(lambda: 0)
     
     tokens = text.split()
-    tagged_tokens = pos_tag(tokens)
+    tagged_tokens = [('START', 'START')]
+    tagged_tokens.extend(pos_tag(tokens))
+    tagged_tokens.append(('STOP', 'STOP'))
     LOG.debug("Here are the tagged tokens: %s" % tagged_tokens)
 
-    unigram = tagged_tokens[0][1]
-    unigram_counts[unigram] += 1
+    # Don't use START and STOP tokens as unigrams
+    num_unigrams = len(tagged_tokens)-2
+#     num_unigrams = len(tagged_tokens)
+    num_bigrams = max(len(tagged_tokens)-1, 0)
+    num_trigrams = max(len(tagged_tokens)-2, 0)
+    LOG.debug("There are %s POS unigrams, %s POS bigrams, and %s POS trigrams" % (num_unigrams, num_bigrams, num_trigrams))
 
-    unigram = tagged_tokens[1][1]
-    unigram_counts[unigram] += 1
-    bigram = tagged_tokens[0][1]+'~'+tagged_tokens[1][1]
-    bigram_counts[bigram] += 1
-    
-    for i in range(2, len(tagged_tokens)):
-        num_trigrams += 1
-        
-        unigram = tagged_tokens[i][1]
+    # Don't use START token as unigram
+#     unigram = tagged_tokens[0][1]
+#     unigram_counts[unigram] += 1
+
+    if len(tagged_tokens) > 1:
+        unigram = tagged_tokens[1][1]
+        LOG.debug("Adding %s to features" % unigram)
         unigram_counts[unigram] += 1
         
-        bigram = tagged_tokens[i-1][1]+'~'+tagged_tokens[i][1]
+        bigram = tagged_tokens[0][1]+'~'+tagged_tokens[1][1]
+        LOG.debug("Adding %s to features" % bigram)
         bigram_counts[bigram] += 1
+        
+        if len(tagged_tokens) > 2:
+            # Don't use STOP token as unigram
+            for i in range(2, len(tagged_tokens)-1):
+#             for i in range(2, len(tagged_tokens)):
+                unigram = tagged_tokens[i][1]
+                LOG.debug("Adding %s to features" % unigram)
+                unigram_counts[unigram] += 1
+        
+                bigram = tagged_tokens[i-1][1]+'~'+tagged_tokens[i][1]
+                LOG.debug("Adding %s to features" % bigram)
+                bigram_counts[bigram] += 1
 
-        trigram = tagged_tokens[i-2][1]+'~'+tagged_tokens[i-1][1]+'~'+tagged_tokens[i][1]
-        trigram_counts[trigram] += 1
+                trigram = tagged_tokens[i-2][1]+'~'+tagged_tokens[i-1][1]+'~'+tagged_tokens[i][1]
+                LOG.debug("Adding %s to features" % trigram)
+                trigram_counts[trigram] += 1
 
-#         skipgram = tokens[i-2][1]+tokens[i][1]
-        skipgram = tagged_tokens[i-2][1]+'~*~'+tagged_tokens[i][1]
-        skipgram_counts[skipgram] += 1
-    
-    num_bigrams = num_trigrams + 1
-    num_unigrams = num_trigrams + 2
+#                 skipgram = tokens[i-2][1]+tokens[i][1]
+                skipgram = tagged_tokens[i-2][1]+'~*~'+tagged_tokens[i][1]
+                LOG.debug("Adding %s to features" % skipgram)
+                skipgram_counts[skipgram] += 1
+            
+            # Don't use STOP token as unigram
+            bigram = tagged_tokens[len(tagged_tokens)-2][1]+'~'+tagged_tokens[len(tagged_tokens)-1][1]
+            LOG.debug("Adding %s to features" % bigram)
+            bigram_counts[bigram] += 1
+
+            trigram = tagged_tokens[len(tagged_tokens)-3][1]+'~'+tagged_tokens[len(tagged_tokens)-2][1]+'~'+tagged_tokens[len(tagged_tokens)-1][1]
+            LOG.debug("Adding %s to features" % trigram)
+            trigram_counts[trigram] += 1
+
+#             skipgram = tokens[i-2][1]+tokens[i][1]
+            skipgram = tagged_tokens[len(tagged_tokens)-3][1]+'~*~'+tagged_tokens[len(tagged_tokens)-1][1]
+            LOG.debug("Adding %s to features" % skipgram)
+            skipgram_counts[skipgram] += 1
     
     # Create the feature list
     feature_list = []
@@ -216,7 +268,7 @@ def extract_pos_ngrams(text):
             LOG.warning("Value for feature %s is 0" % feature)
         feature_list.append((feature, value))
         feature_list.append((feature, value))
-    LOG.debug(skipgram_counts)
+#     LOG.debug(skipgram_counts)
 #     LOG.debug("Here is the POS-tag unigram feature list: %s" % feature_list)
-        
+    
     return feature_list

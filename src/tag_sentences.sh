@@ -11,11 +11,11 @@ N=$2
 
 # Clear the text files to for the cross-validation folds
 for((i=1;i<N+1;++i)); do
-    > ../../out/"$TAG"_$i.txt
+    > ../out/"$TAG"_$i.txt
 done
 
 # Build the feature vectors from the input sentences
-./build_vectors.py ../../data/sentences.txt
+./build_vectors.py ../data/sentences.txt
 
 # Get the paths to the files containing the vectors
 FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/vec -maxdepth 1 -type f)
@@ -62,7 +62,7 @@ for FILE in $FILES; do
         # Append random vectors to txt file for this fold
         for f in "${randf[@]}"; do
 #             echo "Writing to file:" $f
-            echo $f >> ../../out/"$TAG"_$i.txt
+            echo $f >> ../out/"$TAG"_$i.txt
         done
     done    
 
@@ -70,7 +70,7 @@ for FILE in $FILES; do
     echo "Writing vectors for fold" $i
     for f in "${a[@]}"; do
 #         echo "Writing to file:" $f
-        echo $f >> ../../out/"$TAG"_$N.txt
+        echo $f >> ../out/"$TAG"_$N.txt
     done
 
 done
@@ -82,30 +82,30 @@ for((f=1;f<N+1;++f)); do
     echo "Running experiment; testing on fold" $f
 
     # Clear the appropriate train and test txt files
-    >../../out/"$TAG"_"$f"_train.txt
-    >../../out/"$TAG"_"$f"_test.txt
+    >../out/"$TAG"_"$f"_train.txt
+    >../out/"$TAG"_"$f"_test.txt
     
     # Write training data to train txt file
     for((i=1;i<f;++i)); do
         echo "Writing to file training fold:" $i
-        cat ../../out/"$TAG"_$i.txt >> ../../out/"$TAG"_"$f"_train.txt
+        cat ../out/"$TAG"_$i.txt >> ../out/"$TAG"_"$f"_train.txt
     done
 
     for((i=f+1;i<N+1;++i)); do
         echo "Writing to file training fold:" $i
-        cat ../../out/"$TAG"_$i.txt >> ../../out/"$TAG"_"$f"_train.txt
+        cat ../out/"$TAG"_$i.txt >> ../out/"$TAG"_"$f"_train.txt
     done
 
     # Write test data to test txt file
     echo "Writing to file testing fold:" $f
-    cat ../../out/"$TAG"_$f.txt >> ../../out/"$TAG"_"$f"_test.txt
+    cat ../out/"$TAG"_$f.txt >> ../out/"$TAG"_"$f"_test.txt
 
     # Convert the vector txt files to svm light files
-    mallet import-svmlight --input ../../out/"$TAG"_"$f"_train.txt --output ../../out/"$TAG"_"$f"_train.vectors
-    mallet import-svmlight --input ../../out/"$TAG"_"$f"_test.txt --output ../../out/"$TAG"_"$f"_test.vectors --use-pipe-from ../../out/"$TAG"_"$f"_train.vectors
+    mallet import-svmlight --input ../out/"$TAG"_"$f"_train.txt --output ../out/"$TAG"_"$f"_train.vectors
+    mallet import-svmlight --input ../out/"$TAG"_"$f"_test.txt --output ../out/"$TAG"_"$f"_test.vectors --use-pipe-from ../out/"$TAG"_"$f"_train.vectors
 
     # Run MALLET and write classifier to txt file
-    vectors2classify --training-file ../../out/"$TAG"_"$f"_train.vectors --testing-file ../../out/"$TAG"_"$f"_test.vectors --trainer "MaxEnt" --output-classifier ../../out/"$TAG"_"$f"_maxent
-    classifier2info --classifier ../../out/"$TAG"_"$f"_maxent > ../../out/"$TAG"_"$f"_maxent.txt
+    vectors2classify --training-file ../out/"$TAG"_"$f"_train.vectors --testing-file ../out/"$TAG"_"$f"_test.vectors --trainer "MaxEnt" --output-classifier ../out/"$TAG"_"$f"_maxent
+    classifier2info --classifier ../out/"$TAG"_"$f"_maxent > ../out/"$TAG"_"$f"_maxent.txt
 
 done
