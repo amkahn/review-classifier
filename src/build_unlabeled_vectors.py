@@ -7,8 +7,8 @@ Last Modified: June 2, 2015
 This script takes as input a path to a text file of labeled sentences in the following
 format:
 
-LABEL1 This is an example sentence.
-LABEL2 This is another example sentence.
+This is an example sentence.
+This is another example sentence.
 etc.
 
 It then prints feature vectors representing the sentences (one per line; same order) in
@@ -28,24 +28,15 @@ LOG.setLevel(logging.INFO)
 def main():
     logging.basicConfig()
     
-    # Read in the sentence file and store sentences and their corresponding labels
-    labels = []
-    sentences = []
-    
+    # Read in the sentence file and store sentences
+    sentences = []  
     sentence_f = open(argv[1])
     for line in sentence_f.readlines():
         line = line.strip().split()
         if line:
-            label = line[0]
-            sentence = ' '.join(line[1:])
-            labels.append(label)
+            sentence = ' '.join(line[0:])
             sentences.append(sentence)
     sentence_f.close()
-    
-    # Keep track of which files you've opened in a dictionary so you don't reopen them,
-    # and can later close them
-    # Keys are labels, values are corresponding open file objects
-    open_files = {}
     
     # Iterate through the sentences
     for i in range(len(sentences)):
@@ -66,30 +57,17 @@ def main():
         features.extend(extract_trigrams(s))
 #         features.extend(extract_skipgrams(s))
         features.extend(extract_pos_ngrams(s))
-        
-        # Old code to print all vectors together to standard out
-#         print labels[i],
-#         for (f,v) in features:
-#             print f+':'+str(v),
-#         print
 
         # Convert the features to a string in MALLET SVM lite format
         feature_str = ''
         for (f,v) in features:
-            feature_str += ' '+f+':'+str(v)
+            feature_str += ' '+f+':'+str(v)       
         
-        # Print each list of vectors to a file named after their label
-        if open_files.get(labels[i]):
-#             LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
-            open_files[labels[i]].write(labels[i]+feature_str+'\n')
-        else:
-            open_files[labels[i]] = open('../data/vec/%s.txt' % labels[i], 'w')
-#             LOG.debug("Writing vector: %s" % labels[i]+' '+feature_str)
-            open_files[labels[i]].write(labels[i]+feature_str+'\n')
-    
-    # Close all the open files
-    for f in open_files.values():
-        f.close()
+        # Print the vector to standard out
+        # NB: A random label is appended to all vectors in order to comply with MALLET's input
+        # requirements. It is not necessarily the correct label and will not affect classification.
+        print 'PRAISE'+feature_str
+
         
 if __name__ == '__main__':
     main()

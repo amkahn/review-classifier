@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Author: Andrea Kahn
+# Last Modified: June 3, 2015
+#
+# This script trains and tests a sentence tagger using n-fold cross-validation.
+#
 # FIXME: Balance the number of vectors per class
 # FIXME: Make sure that the number of vectors per class modulo N is low (ideally 0)
 
@@ -31,8 +36,13 @@ for FILE in $FILES; do
     cat $FILE >> ../out/"$TAG"_vectors.txt
 done
 
+# Convert the vectors txt file to SVM lite format
 mallet import-svmlight --input ../out/"$TAG"_vectors.txt --output ../out/"$TAG"_vectors
+
+# Train and test a sentence classifier using n-fold cross-validation
 mallet train-classifier --input ../out/"$TAG"_vectors --cross-validation $N --trainer MaxEnt --report train:accuracy test:accuracy test:confusion test:raw --output-classifier ../out/"$TAG"_maxent
+
+# Print the classifiers to txt files
 for((i=0;i<N;++i)); do
     classifier2info --classifier ../out/"$TAG"_maxent.trial"$i" > ../out/"$TAG"_maxent.trial"$i".txt
 done
