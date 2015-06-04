@@ -2,7 +2,7 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: June 2, 2015
+Last Modified: June 3, 2015
 
 This script takes as input a path to a text file of labeled sentences in the following
 format:
@@ -17,12 +17,12 @@ MALLET SVM lite format to text files in ../data/vec (one for each label).
 '''
 
 import logging
-from sys import argv
+from sys import argv, exit
 from extract_features import *
 from nltk import RegexpTokenizer
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
+LOG.setLevel(logging.DEBUG)
 
 
 def main():
@@ -58,10 +58,15 @@ def main():
 #         features.extend(extract_skipgrams(s))
         features.extend(extract_pos_ngrams(s))
 
+        # If sentence has no features, exit with a warning message
+        if len(features) < 1:
+            LOG.warn("Sentence has no features; skipping: %s" % sentences[i])
+            exit(1) 
+
         # Convert the features to a string in MALLET SVM lite format
         feature_str = ''
         for (f,v) in features:
-            feature_str += ' '+f+':'+str(v)       
+            feature_str += ' '+f+':'+str(v)
         
         # Print the vector to standard out
         # NB: A random label is appended to all vectors in order to comply with MALLET's input

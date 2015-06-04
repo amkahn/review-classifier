@@ -14,7 +14,7 @@ TAG=$1
 # Second argument to script is number of folds for n-fold cross-validation
 N=$2
 
-# Clear the text files to for the cross-validation folds
+# Clear the text files for the cross-validation folds
 for((i=1;i<N+1;++i)); do
     > ../out/"$TAG"_$i.txt
 done
@@ -40,7 +40,7 @@ done
 mallet import-svmlight --input ../out/"$TAG"_vectors.txt --output ../out/"$TAG"_vectors
 
 # Train and test a sentence classifier using n-fold cross-validation
-mallet train-classifier --input ../out/"$TAG"_vectors --cross-validation $N --trainer MaxEnt --report train:accuracy test:accuracy test:confusion test:raw --output-classifier ../out/"$TAG"_maxent
+mallet train-classifier --input ../out/"$TAG"_vectors --cross-validation $N --trainer MaxEnt --report train:accuracy test:accuracy test:confusion test:raw --output-classifier ../out/"$TAG"_maxent> ../out/tmp1.txt
 
 # Print the classifiers to txt files
 for((i=0;i<N;++i)); do

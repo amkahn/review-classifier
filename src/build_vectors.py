@@ -2,7 +2,7 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: June 2, 2015
+Last Modified: June 3, 2015
 
 This script takes as input a path to a text file of labeled sentences in the following
 format:

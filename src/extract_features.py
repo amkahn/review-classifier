@@ -33,6 +33,10 @@ def extract_unigrams(text, min_val=0):
     num_unigrams = len(tokens)
     LOG.debug("There are %s unigrams" % num_unigrams)
     
+    if len(tokens) < 1:
+        LOG.debug("Sentence has 0 tokens: %s" % text)
+        return []
+    
     for token in tokens:
         unigram_counts[token] += 1
     
@@ -182,6 +186,10 @@ def extract_pos_ngrams(text):
     skipgram_counts = defaultdict(lambda: 0)
     
     tokens = text.split()
+    if len(tokens) < 1:
+        LOG.debug("Sentence has 0 tokens: %s" % text)
+        return []
+        
     tagged_tokens = [('START', 'START')]
     tagged_tokens.extend(pos_tag(tokens))
     tagged_tokens.append(('STOP', 'STOP'))
