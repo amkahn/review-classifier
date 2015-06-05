@@ -33,7 +33,7 @@ for SENT in $SENTS; do
     echo $SENT > ../out/sent.txt
     
     # Build a feature vector from the sentence and store it in a file
-    ./build_unlabeled_vectors.py ../out/sent.txt > ../data/vec.txt
+    ./build_unlab_sent_vectors.py ../out/sent.txt > ../data/vec.txt
 
     # Perform classification using the already-trained classifier
     M=$(mallet classify-svmlight --input ../data/vec.txt --output - --classifier ../out/r1_maxent.trial0)

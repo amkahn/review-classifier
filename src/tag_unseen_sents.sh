@@ -10,7 +10,7 @@
 TAG=$1
 
 # Build the feature vectors from the input sentences
-./build_unlabeled_vectors.py ../data/unlabeled.txt > ../data/vec_to_label.txt
+./build_unlab_sent_vectors.py ../data/unlabeled.txt > ../data/vec_to_label.txt
 
 # Perform classification using the already-trained classifier
 mallet classify-svmlight --input ../data/vec_to_label.txt --output ../out/"$TAG"_labeled.txt --classifier ../out/"$TAG"_maxent.trial0

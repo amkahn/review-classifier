@@ -20,7 +20,7 @@ for((i=1;i<N+1;++i)); do
 done
 
 # Build the feature vectors from the input sentences
-./build_vectors.py ../data/sentences.txt
+./build_sent_vectors.py ../data/sentences.txt
 
 # Get the paths to the files containing the vectors
 FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/vec -maxdepth 1 -type f)
@@ -40,7 +40,7 @@ done
 mallet import-svmlight --input ../out/"$TAG"_vectors.txt --output ../out/"$TAG"_vectors
 
 # Train and test a sentence classifier using n-fold cross-validation
-mallet train-classifier --input ../out/"$TAG"_vectors --cross-validation $N --trainer MaxEnt --report train:accuracy test:accuracy test:confusion test:raw --output-classifier ../out/"$TAG"_maxent> ../out/tmp1.txt
+mallet train-classifier --input ../out/"$TAG"_vectors --cross-validation $N --trainer MaxEnt --report train:accuracy test:accuracy test:confusion test:raw --output-classifier ../out/"$TAG"_maxent> ../out/"$TAG"_results.txt
 
 # Print the classifiers to txt files
 for((i=0;i<N;++i)); do
@@ -50,6 +50,8 @@ done
 
 
 # OLD MALLET CODE TO SPLIT DATA MANUALLY INTO N FOLDS AND PERFORM CROSS-VALIDATION
+# (NOTE: Manually splitting data into folds was to allow balancing data across classes)
+#
 # Iterate through the class files, splitting data for each class randomly into N folds
 # for FILE in $FILES; do
 #     # Store the vectors of this class in an array
