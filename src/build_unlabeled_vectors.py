@@ -22,7 +22,7 @@ from extract_features import *
 from nltk import RegexpTokenizer
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.INFO)
 
 
 def main():
