@@ -13,7 +13,7 @@ from collections import defaultdict
 from nltk import sent_tokenize, word_tokenize, pos_tag
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
+LOG.setLevel(logging.DEBUG)
 
 
 def extract_unigrams(text, min_val=0):

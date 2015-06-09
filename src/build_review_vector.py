@@ -20,7 +20,7 @@ from extract_features import *
 from nltk import RegexpTokenizer
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
+LOG.setLevel(logging.DEBUG)
 
 
 def main():
@@ -47,7 +47,7 @@ def main():
     features.extend(extract_unigrams(review))
     features.extend(extract_bigrams(review))
     features.extend(extract_trigrams(review))
-#         features.extend(extract_skipgrams(review))
+#     features.extend(extract_skipgrams(review))
     features.extend(extract_pos_ngrams(review))
 
     # Convert the features to a string in MALLET SVM lite format

@@ -14,6 +14,9 @@ TAG=$1
 # Second argument to script is number of folds for n-fold cross-validation
 N=$2
 
+# Clear the directory for the vectors
+rm ../data/vec/*
+
 # Clear the text files for the cross-validation folds
 for((i=1;i<N+1;++i)); do
     > ../out/"$TAG"_$i.txt

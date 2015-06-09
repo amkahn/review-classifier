@@ -3,9 +3,9 @@
 # Author: Andrea Kahn
 # Last Modified: June 4, 2015
 #
-# This script trains and tests a sentence tagger using n-fold cross-validation.
+# This script trains and tests a model that classifies product reviews as suspicious
+# or trustworthy using n-fold cross-validation.
 #
-# FIXME: Balance the number of vectors per class
 # FIXME: Make sure that the number of vectors per class modulo N is low (ideally 0)
 
 # First argument to script is run tag
