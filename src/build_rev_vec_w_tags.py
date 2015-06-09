@@ -30,8 +30,6 @@ def main():
     logging.basicConfig()
     
     label = argv[1]
-    features = []
-    
     review_f = open(argv[2])
     lines = review_f.readlines()
     review_f.close()
@@ -46,31 +44,32 @@ def main():
     
     # Make tuples of the tag sequence and the sentence sequence, respectively
     tags, sentences = zip(*pairs)
-#     tags = list(tags)
-#     sentences = list(sentences)
-    LOG.debug("Here are the sentence tags: %s" % str(tags))
-    LOG.debug("Here are the sentences: %s" % str(sentences))
+    tags = list(tags)
+    sentences = list(sentences)
+    LOG.debug("Here are the sentence tags: %s" % tags)
+    LOG.debug("Here are the sentences: %s" % sentences)
     
     review = ' '.join(sentences)
     LOG.debug("Building vector for review: %s" % review)
     
     # Preprocess the text, adding START and STOP tokens to sentences
     # FIXME: Store capitals, exclamation points, emoticons
-    for sentence in sentences:
+    for i in range(len(sentences)):
 #         tokens = ['START']
-        sentence = sentence.lower()
+        sentences[i] = sentences[i].lower()
         tokenizer = RegexpTokenizer(r'\w+')
-        tokens = tokenizer.tokenize(sentence)
+        tokens = tokenizer.tokenize(sentences[i])
 #         tokens.extend(tokenizer.tokenize(sentence))
 #         tokens.append('STOP')
-        sentence = ' '.join(tokens)
+        sentences[i] = ' '.join(tokens)
 
-        # Extract (feature, value) tuples and append them to the features list 
-        features.extend(extract_unigrams(sentence))
-        features.extend(extract_bigrams(sentence))
-        features.extend(extract_trigrams(sentence))
-#         features.extend(extract_skipgrams(sentence))
-        features.extend(extract_pos_ngrams(sentence))
+    # Store (feature, value) tuples in a list
+    features = []
+    features.extend(extract_unigrams(sentences))
+    features.extend(extract_bigrams(sentences))
+    features.extend(extract_trigrams(sentences))
+#     features.extend(extract_skipgrams(sentences))
+    features.extend(extract_pos_ngrams(sentences))
 
     # Convert the features to a string in MALLET SVM lite format
     feature_str = ''
