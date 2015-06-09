@@ -36,7 +36,7 @@ def extract_unigrams(sentences, min_val=0):
         num_unigrams += len(tokens)
         
         if len(tokens) < 1:
-            LOG.debug("Sentence has 0 tokens: %s" % text)
+            LOG.debug("Sentence has 0 tokens: %s" % s)
         
         else:
             for token in tokens:
@@ -79,8 +79,8 @@ def extract_bigrams(sentences):
         tokens.append('STOP')
         num_bigrams += max(len(tokens)-1, 0)
     
-        if len(tokens) < 2:
-            LOG.debug("Sentence has fewer than 2 tokens: %s" % text)
+        if len(tokens) < 3:
+            LOG.debug("Sentence has fewer than 3 tokens: %s" % s)
 
         else:
             for i in range(1, len(tokens)):
@@ -123,7 +123,7 @@ def extract_trigrams(sentences):
         num_trigrams += max(len(tokens)-2, 0)
     
         if len(tokens) < 3:
-            LOG.debug("Sentence has fewer than 3 tokens: %s" % text)
+            LOG.debug("Sentence has fewer than 3 tokens: %s" % s)
 
         else:    
             for i in range(2, len(tokens)):
@@ -166,7 +166,7 @@ def extract_skipgrams(sentences):
         num_trigrams += max(len(tokens)-2, 0)
     
         if len(tokens) < 3:
-            LOG.debug("Sentence has fewer than 3 tokens: %s" % text)
+            LOG.debug("Sentence has fewer than 3 tokens: %s" % s)
             return []
             
         else:
@@ -215,7 +215,7 @@ def extract_pos_ngrams(sentences):
         tokens = s.split()
 
         if len(tokens) < 1:
-            LOG.debug("Sentence has 0 tokens: %s" % text)
+            LOG.debug("Sentence has 0 tokens: %s" % s)
 
         else:
             tagged_tokens = [('START', 'START')]

@@ -43,11 +43,16 @@ def main():
     LOG.debug("Here are the pairs: %s" % str(pairs))
     
     # Make tuples of the tag sequence and the sentence sequence, respectively
-    tags, sentences = zip(*pairs)
-    tags = list(tags)
-    sentences = list(sentences)
+    if pairs:
+        tags, sentences = zip(*pairs)
+        tags = list(tags)
+        sentences = list(sentences)
+    else:
+        tags = []
+        sentences = []
+
     LOG.debug("Here are the sentence tags: %s" % tags)
-    LOG.debug("Here are the sentences: %s" % sentences)
+#     LOG.debug("Here are the sentences: %s" % sentences)
     
     review = ' '.join(sentences)
     LOG.debug("Building vector for review: %s" % review)
@@ -67,6 +72,13 @@ def main():
     features.extend(extract_trigrams(sentences))
 #     features.extend(extract_skipgrams(sentences))
     features.extend(extract_pos_ngrams(sentences))
+    
+    tag_seq = ' '.join(tags)
+    LOG.debug("Here is the tag sequence: %s" % tag_seq)
+#     features.extend(extract_unigrams([tag_seq]))
+#     features.extend(extract_bigrams([tag_seq]))
+#     features.extend(extract_trigrams([tag_seq]))
+#     features.extend(extract_skipgrams([tag_seq]))
 
     # Convert the features to a string in MALLET SVM lite format
     feature_str = ''
@@ -88,11 +100,11 @@ def detag_sentence(sent):
     '''
 #     tags = []
 #     sentences = []
-    tag_pattern = re.compile(r'[A-Z]+')
+    tag_pattern = re.compile(r'[A-Z_]{2,} ')
     
 #     for sent in tagged_sents:
     tokens = sent.split()
-    if (len(tokens)<2) or not tag_pattern.match(tokens[0]):
+    if (len(tokens)<2) or not tag_pattern.match(sent):
         LOG.warn("Line is not in expected format; skipping: %s" % sent)
         return
     else:

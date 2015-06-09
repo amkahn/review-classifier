@@ -1,10 +1,13 @@
 #!/bin/sh
 
 # Author: Andrea Kahn
-# Last Modified: June 4, 2015
+# Last Modified: June 9, 2015
 #
 # This script trains and tests a model that classifies product reviews as suspicious
 # or trustworthy using n-fold cross-validation.
+#
+# To switch from untagged to tagged reviews, comment/uncomment (respectively) the
+# following line pairs: 28/29, 42/43, 46/47; 55/56, 69/70, 73/74.
 #
 # FIXME: Make sure that the number of vectors per class modulo N is low (ideally 0)
 
@@ -22,7 +25,8 @@ C2=$4
 # Build vectors for class 1 products
 # Get the paths to the files containing the review text
 # FILES=$(find /Users/akahn/Documents/GradSchool/RA/review-classifierdata/reviews/$C1 -maxdepth 1 -type f)
-FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/reviews/$C1 -maxdepth 1 -type f)
+# FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/reviews/$C1 -maxdepth 1 -type f)
+FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/reviews-tagged/$C1 -maxdepth 1 -type f)
 
 # Get the number of files/products
 NUM=$(echo "$FILES" | wc -l)
@@ -35,10 +39,12 @@ class1=()
 for FILE in $FILES; do
     # Get the product ID from the file path
 #     F=$(echo $FILE | sed "s/\/Users\/akahn\/Documents\/GradSchool\/RA\/review\-classifier\/data\/reviews\/$C1\/\([A-Z0-9]*\).txt/\1/")
-    ID=$(echo $FILE | sed "s/\/home2\/amkahn\/workspace\/RA\/review\-classifier\/data\/reviews\/$C1\/\([A-Z0-9]*\).txt/\1/")
+#     ID=$(echo $FILE | sed "s/\/home2\/amkahn\/workspace\/RA\/review\-classifier\/data\/reviews\/$C1\/\([A-Z0-9]*\).txt/\1/")
+    ID=$(echo $FILE | sed "s/\/home2\/amkahn\/workspace\/RA\/review\-classifier\/data\/reviews\-tagged\/$C1\/\([A-Z0-9]*\).txt/\1/")
     echo "Building vector for review with product ID:" $ID
     # Build a vector and append it to the array
-    python build_review_vector.py $C1 $FILE > ../out/"$TAG"_$ID.txt
+#     python build_review_vector.py $C1 $FILE > ../out/"$TAG"_$ID.txt
+    python build_rev_vec_w_tags.py $C1 $FILE > ../out/"$TAG"_$ID.txt
     class1+=( ../out/"$TAG"_$ID.txt )
 done
 
@@ -46,7 +52,8 @@ done
 # Build vectors for class 2 products
 # Get the file paths
 # FILES=$(find /Users/akahn/Documents/GradSchool/RA/review-classifier/data/reviews/$C2 -maxdepth 1 -type f)
-FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/reviews/$C2 -maxdepth 1 -type f)
+# FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/reviews/$C2 -maxdepth 1 -type f)
+FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/reviews-tagged/$C2 -maxdepth 1 -type f)
 
 # Get the number of files/products
 NUM=$(echo "$FILES" | wc -l)
@@ -59,10 +66,12 @@ class2=()
 for FILE in $FILES; do
     # Get the product ID from the file path
 #     F=$(echo $FILE | sed "s/\/Users\/akahn\/Documents\/GradSchool\/RA\/review\-classifier\/data\/reviews\/$C2\/\([A-Z0-9]*\).txt/\1/")
-    ID=$(echo $FILE | sed "s/\/home2\/amkahn\/workspace\/RA\/review\-classifier\/data\/reviews\/$C2\/\([A-Z0-9]*\).txt/\1/")
+#     ID=$(echo $FILE | sed "s/\/home2\/amkahn\/workspace\/RA\/review\-classifier\/data\/reviews\/$C2\/\([A-Z0-9]*\).txt/\1/")
+    ID=$(echo $FILE | sed "s/\/home2\/amkahn\/workspace\/RA\/review\-classifier\/data\/reviews\-tagged\/$C2\/\([A-Z0-9]*\).txt/\1/")
     echo "Building vector for review with product ID:" $ID
     # Build a vector and write it to a file labeled with the product ID
-    python build_review_vector.py $C2 $FILE > ../out/"$TAG"_$ID.txt
+#     python build_review_vector.py $C2 $FILE > ../out/"$TAG"_$ID.txt
+    python build_rev_vec_w_tags.py $C2 $FILE > ../out/"$TAG"_$ID.txt
     class2+=( ../out/"$TAG"_$ID.txt )
 done
 
