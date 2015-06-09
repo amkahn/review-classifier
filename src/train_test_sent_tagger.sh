@@ -23,7 +23,7 @@ for((i=1;i<N+1;++i)); do
 done
 
 # Build the feature vectors from the input sentences
-./build_sent_vectors.py ../data/sentences.txt
+./build_sent_vectors.py ../data/sentences6classes.txt
 
 # Get the paths to the files containing the vectors
 FILES=$(find /home2/amkahn/workspace/RA/review-classifier/data/vec -maxdepth 1 -type f)

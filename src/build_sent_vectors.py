@@ -2,7 +2,7 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: June 3, 2015
+Last Modified: June 9, 2015
 
 This script takes as input a path to a text file of labeled sentences in the following
 format:
@@ -61,11 +61,11 @@ def main():
     
         # Extract features and store (feature, value) tuples in a list
         features = []
-        features.extend(extract_unigrams(s))
-        features.extend(extract_bigrams(s))
-        features.extend(extract_trigrams(s))
-#         features.extend(extract_skipgrams(s))
-        features.extend(extract_pos_ngrams(s))
+        features.extend(extract_unigrams([s]))
+        features.extend(extract_bigrams([s]))
+        features.extend(extract_trigrams([s]))
+#         features.extend(extract_skipgrams([s]))
+        features.extend(extract_pos_ngrams([s]))
         
         # Old code to print all vectors together to standard out
 #         print labels[i],

@@ -2,7 +2,7 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: June 2, 2015
+Last Modified: June 9, 2015
 
 This module contains various functions for extracting features from text strings.
 
@@ -13,7 +13,7 @@ from collections import defaultdict
 from nltk import sent_tokenize, word_tokenize, pos_tag
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.INFO)
 
 
 def extract_unigrams(sentences, min_val=0):

@@ -2,7 +2,7 @@
 
 '''
 Author: Andrea Kahn
-Last Modified: June 5, 2015
+Last Modified: June 9, 2015
 
 This script takes as input:
 1) a class label, and
@@ -20,7 +20,7 @@ from extract_features import *
 from nltk import RegexpTokenizer, sent_tokenize
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.INFO)
 
 
 def main():

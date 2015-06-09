@@ -19,6 +19,7 @@ TAG=$1
 # Clear the output txt file
 > ../out/tagged_sentences.txt
 
+# Second argument is the review file to be sentence-tagged
 # Tokenize the sentences and insert newlines between them
 R=$(cat $2)
 # ./sent_tokenize.py "$R"
