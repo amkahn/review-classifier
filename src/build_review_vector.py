@@ -17,7 +17,7 @@ standard out.
 import logging
 from sys import argv
 from extract_features import *
-from nltk import RegexpTokenizer
+from nltk import RegexpTokenizer, sent_tokenize
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -29,26 +29,30 @@ def main():
     label = argv[1]
     review_f = open(argv[2])
     lines = review_f.readlines()
-    lines = map(lambda x: x.strip(), lines)
-    review = ' '.join(lines)
     review_f.close()
     
+    lines = map(lambda x: x.strip(), lines)
+    review = ' '.join(lines)
     LOG.debug("Building vector for review: %s" % review)
+    
+    sentences = sent_tokenize(review)
+    LOG.debug("Here are the sentences: %s" % sentences)
 
     # Preprocess the text
     # FIXME: Store capitals, exclamation points, emoticons
-    review = review.lower()
-    tokenizer = RegexpTokenizer(r'\w+')
-    tokens = tokenizer.tokenize(review)
-    review = ' '.join(tokens)
+    for i in range(len(sentences)):
+        sentences[i] = sentences[i].lower()
+        tokenizer = RegexpTokenizer(r'\w+')
+        tokens = tokenizer.tokenize(sentences[i])
+        sentences[i] = ' '.join(tokens)
 
     # Extract features and store (feature, value) tuples in a list
     features = []
-    features.extend(extract_unigrams(review))
-    features.extend(extract_bigrams(review))
-    features.extend(extract_trigrams(review))
-#     features.extend(extract_skipgrams(review))
-    features.extend(extract_pos_ngrams(review))
+    features.extend(extract_unigrams(sentences))
+    features.extend(extract_bigrams(sentences))
+    features.extend(extract_trigrams(sentences))
+#     features.extend(extract_skipgrams(sentences))
+    features.extend(extract_pos_ngrams(sentences))
 
     # Convert the features to a string in MALLET SVM lite format
     feature_str = ''

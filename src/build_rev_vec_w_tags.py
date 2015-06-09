@@ -20,7 +20,7 @@ import logging
 import re
 from sys import argv
 from extract_features import *
-from nltk import RegexpTokenizer, sent_tokenize
+from nltk import RegexpTokenizer
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -55,12 +55,9 @@ def main():
     # Preprocess the text, adding START and STOP tokens to sentences
     # FIXME: Store capitals, exclamation points, emoticons
     for i in range(len(sentences)):
-#         tokens = ['START']
         sentences[i] = sentences[i].lower()
         tokenizer = RegexpTokenizer(r'\w+')
         tokens = tokenizer.tokenize(sentences[i])
-#         tokens.extend(tokenizer.tokenize(sentence))
-#         tokens.append('STOP')
         sentences[i] = ' '.join(tokens)
 
     # Store (feature, value) tuples in a list
